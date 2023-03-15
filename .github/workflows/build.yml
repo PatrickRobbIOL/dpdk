@@ -269,3 +269,60 @@ jobs:
         path: |
           build/.ninja_log
           build/meson-logs/meson-log.txt
+  
+  alpine-builds:
+    name: ${{ join(matrix.config.*, '-') }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: sh --noprofile --norc -exo pipefail {0}
+    container: ${{ matrix.config.image }}
+    env:
+      CC: ccache ${{ matrix.config.compiler }}
+      DEF_LIB: ${{ matrix.config.library }}
+      RUN_TESTS: ${{ contains(matrix.config.checks, 'tests') }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - image: alpine:latest
+            compiler: gcc
+            checks: tests
+
+    steps:
+    - name: Checkout sources
+      uses: actions/checkout@v3
+    - name: Generate various keys
+      id: get_keys
+      run: |
+        echo 'ccache=ccache-${{ matrix.config.image }}-${{ matrix.config.compiler }}-'$(date -u +%Y-w%W) >> $GITHUB_OUTPUT
+        echo 'image=image-${{ matrix.config.image }}-'$(date -u +%Y-%m-%d) >> $GITHUB_OUTPUT
+        echo 'logs=meson-logs-${{ join(matrix.config.*, '-') }}' | tr -d ':' >> $GITHUB_OUTPUT
+    - name: Retrieve ccache cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.ccache
+        key: ${{ steps.get_keys.outputs.ccache }}-${{ github.ref }}
+        restore-keys: |
+          ${{ steps.get_keys.outputs.ccache }}-refs/heads/main
+    - name: Update
+      run: apk update || true
+    - name: Install packages
+      run: apk add bsd-compat-headers ccache jansson-dev libarchive-dev
+        libbpf-dev libc-dev libpcap-dev linux-headers ninja numactl-dev
+        openssl-dev py3-pip py3-elftools py3-setuptools py3-wheel zlib-dev
+        ${{ matrix.config.compiler }}
+    - name: Run setup
+      run: .ci/linux-setup.sh
+    - name: Build
+      run: .ci/linux-build.sh
+    - name: Upload logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.get_keys.outputs.logs }}
+        path: |
+          build/.ninja_log
+          build/meson-logs/meson-log.txt
+          build/meson-logs/testlog.txt
