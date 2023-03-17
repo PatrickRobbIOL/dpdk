@@ -6,6 +6,8 @@ if [ -z "${DEF_LIB:-}" ]; then
     exit
 fi
 
+DEF_LIB=shared
+
 # Builds are run as root in containers, no need for sudo
 [ "$(id -u)" != '0' ] || alias sudo=
 
