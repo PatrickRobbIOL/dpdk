@@ -1,7 +1,7 @@
 #!/bin/sh -xe
 
 if [ -z "${DEF_LIB:-}" ]; then
-    DEF_LIB=static ABI_CHECKS= BUILD_DOCS= RUN_TESTS= $0
+    DEF_LIB=static ABI_CHECKS= BUILD_DOCS=
     DEF_LIB=shared $0
     exit
 fi
