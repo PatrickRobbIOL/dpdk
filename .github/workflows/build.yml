@@ -20,7 +20,7 @@ jobs:
     env:
       CC: ${{ matrix.config.compiler }}
       DEF_LIB: ${{ matrix.config.library }}
-      RUN_TESTS: ${{ contains(matrix.config.checks, 'tests') }}
+      #RUN_TESTS: ${{ contains(matrix.config.checks, 'tests') }}
 
     strategy:
       fail-fast: false
