@@ -39,13 +39,13 @@ jobs:
         echo 'ccache=ccache-${{ matrix.config.image }}-${{ matrix.config.compiler }}-'$(date -u +%Y-w%W) >> $GITHUB_OUTPUT
         echo 'image=image-${{ matrix.config.image }}-'$(date -u +%Y-%m-%d) >> $GITHUB_OUTPUT
         echo 'logs=meson-logs-${{ join(matrix.config.*, '-') }}' | tr -d ':' >> $GITHUB_OUTPUT
-    - name: Retrieve ccache cache
-      uses: actions/cache@v3
-      with:
-        path: ~/.ccache
-        key: ${{ steps.get_keys.outputs.ccache }}-${{ github.ref }}
-        restore-keys: |
-          ${{ steps.get_keys.outputs.ccache }}-refs/heads/main
+    #- name: Retrieve ccache cache
+    #  uses: actions/cache@v3
+    #  with:
+    #    path: ~/.ccache
+    #    key: ${{ steps.get_keys.outputs.ccache }}-${{ github.ref }}
+    #    restore-keys: |
+    #      ${{ steps.get_keys.outputs.ccache }}-refs/heads/main
     - name: Update
       run: apk update || true
     - name: Install packages
