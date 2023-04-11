@@ -110,6 +110,7 @@ else
     fi
     meson setup build $OPTS
 fi
+meson configure build
 ninja -C build
 
 if [ -z "$cross_file" ]; then
